@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Home Page</title>
+    <title>Decision Maker</title>
 
     <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" type="text/css" />
     <link rel="stylesheet" href="/vendor/border-box.css" type="text/css" />
@@ -12,6 +12,25 @@
   </head>
 
   <body>
-    <h1>Hello World!</h1>
+   <h1>Create Poll</h1>
+
+       <form action="/polls" method="POST">
+           <label for="poll_title">Poll Title:</label>
+           <input type="text" name="poll_title">
+
+           <label for="poll_description">Description:</label>
+           <input type="text" name="poll_description">
+
+           <label for="voter_email">Recipient emails:</label>
+           <input type="text" name="voter_email">
+
+           <label for="choice_name">Voting Choices:</label>
+           <input type="text" name="choice_name">
+
+           <label for="admin_email">Creator email:</label>
+           <input type="email" name="admin_email">
+           <input type="submit">
+       </form>
+
   </body>
 </html>

@@ -13,19 +13,19 @@ exports.up = function(knex, Promise) {
       table.increments('choice_id');
       table.string('choice_name');
       table.integer('poll_id');
-      table.foreign('poll_id').references('poll.id');
+      table.foreign('poll_id').references('id').inTable('poll');
     }),
     knex.schema.createTable('voter', function(table) {
       table.increments('voter_id');
       table.string('voter_email');
       table.integer('poll_id')
-      table.foreign('poll_id').references('poll.id');
+      table.foreign('poll_id').references('id').inTable('poll');
     }),
     knex.schema.createTable('voterChoices', function(table) {
       table.integer('voter_id');
-      table.foreign('voter_id').references('voter.voter_id');
+      table.foreign('voter_id').references('voter_id').inTable('voter');
       table.integer('choice_id');
-      table.foreign('choice_id').references('choices.choice_id');
+      table.foreign('choice_id').references('choice_id').inTable('choices');
       table.integer('preference');
     })
   ])

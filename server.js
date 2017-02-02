@@ -36,13 +36,63 @@ app.use("/styles", sass({
 app.use(express.static("public"));
 
 // Mount all resource routes
-app.use("/api/users", usersRoutes(knex));
+// app.use("/api/users", usersRoutes(knex));
+// app.use("/api/poll", usersRoutes(knex));
+// app.use("/api/choices", usersRoutes(knex));
+// app.use("/api/voters", usersRoutes(knex));
+// app.use("/api/voterChoices", usersRoutes(knex));
+
+//////////////////////////////////////////
+//////////////////////////////////////////
+//this function generates a rondom string for our url
+
+function generateRandomString(length) {
+ var chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789'
+ var result = '';
+   for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+   return result;
+}
+
+function splitInputString(input) {
+ var input = "";
+ var splitUP = input.split(";")
+ return splitUP;
+
+}
+
+//////////////////////////////////////////
+//////////////////////////////////////////
 
 // Home page
 app.get("/", (req, res) => {
   res.render("index");
 });
 
+app.post("/polls", (req, res) => {
+
+  let title = request.body["poll_title"];
+  let description = request.body["description"];
+  let voterEmails = splitInputString(request.body["voter_email"]);
+  let adminChoices = splitInputString(request.body["choice_name"]);
+  let adminEmail = request.body["admin_email"];
+
+  for (var i = 0; i <= voterEmails.length; i++) {
+
+   // iterates thru array of split voter emails > log each instance to database.
+   voterEmails[i]
+   //console.log(voterEmails[i]);
+ }
+})
+
 app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
 });
+
+
+
+
+
+
+
+
+
