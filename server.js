@@ -54,11 +54,41 @@ function generateRandomString(length) {
 }
 
 function splitInputString(input) {
- var input = "";
  var splitUP = input.split(";")
  return splitUP;
+}
+
+
+
+function insertEmails(arr, pollID) {
+  console.log(arr);
+  // knex('voter').insert({email: 'Slaughterhouse Five'})
+
+  // USE for Of
+  // Callback
 
 }
+
+function insertPoll(title, description, admin_email) {
+   const admin_link = generateRandomString(9);
+   const voter_link = generateRandomString(6);
+
+
+   console.log("description log:", description);
+   const insert = {poll_title: title, poll_description: description, admin_email: admin_email, admin_link: admin_link, voter_link: voter_link};
+
+   knex.insert(insert).into("poll").then(function (id) {
+    console.log(id);
+   })
+   // .catch(error)
+   // {
+   // //     console.log(error);
+   // // }
+   .finally(function() {
+    knex.destroy();
+   });
+}
+
 
 //////////////////////////////////////////
 //////////////////////////////////////////
@@ -68,21 +98,34 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-app.post("/polls", (req, res) => {
+app.post("/poll", (req, res) => {
+  let title = req.body["poll_title"];
+  let description = req.body["poll_description"];
+  let adminEmail = req.body["admin_email"];
 
-  let title = request.body["poll_title"];
-  let description = request.body["description"];
-  let voterEmails = splitInputString(request.body["voter_email"]);
-  let adminChoices = splitInputString(request.body["choice_name"]);
-  let adminEmail = request.body["admin_email"];
+  insertPoll(title, description, adminEmail);
+  res.redirect("/submit");
 
-  for (var i = 0; i <= voterEmails.length; i++) {
 
-   // iterates thru array of split voter emails > log each instance to database.
-   voterEmails[i]
-   //console.log(voterEmails[i]);
- }
-})
+// let voterEmails = splitInputString(req.body["voter_email"]);
+// let adminChoices = splitInputString(req.body["choice_name"]);
+
+
+  // insertEmails(voterEmails);
+  // res.render
+
+});
+
+app.get("/submit", (req, res) => {
+  res.render("submit")
+});
+
+//   // iterates thru array of split voter emails > log each instance to database.
+//   for (var i = 0; i <= voterEmails.length; i++) {
+//   voterEmails[i];
+//    //console.log(voterEmails[i]);
+//  }
+// })
 
 app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
