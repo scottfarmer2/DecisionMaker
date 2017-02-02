@@ -1,10 +1,13 @@
 exports.seed = function(knex, Promise) {
-  return knex('users').del()
+  return knex('poll').del()
     .then(function () {
       return Promise.all([
-        knex('users').insert({id: 1, name: 'Alice'}),
-        knex('users').insert({id: 2, name: 'Bob'}),
-        knex('users').insert({id: 3, name: 'Charlie'})
+        knex('poll').insert({poll_title: 'Dinner',
+                              poll_description: 'Where are we going to eat',
+                              admin_email: 'dirtbag28@gmail.com',
+                              admin_link: 'www.results.com',
+                              voter_link: 'www.choices.com'}),
+
       ]);
     });
 };
