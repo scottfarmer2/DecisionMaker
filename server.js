@@ -46,6 +46,25 @@ app.use(express.static("public"));
 //////////////////////////////////////////
 //this function generates a rondom string for our url
 
+
+
+//////////////////////////////////////////
+//////////////////////////////////////////
+
+let pollID;
+
+
+
+
+
+
+
+
+//////////////////////////////////////////
+//////////////////////////////////////////
+
+
+
 function generateRandomString(length) {
  var chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789'
  var result = '';
@@ -59,25 +78,54 @@ function splitInputString(input) {
 }
 
 
+function insertEmails(voter, pollID) {
+   for (let email of voter) {
+console.log('helloooooooooo')
 
-function insertEmails(arr, pollID) {
-  console.log(arr);
-  // knex('voter').insert({email: 'Slaughterhouse Five'})
-
-  // USE for Of
-  // Callback
+const insert3 = {voter_email: email, poll_id: pollID};
+console.log(insert3);
+    knex.insert(insert3).into("voter").then(function (id) {
+    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+   })
+   // .catch(error)
+   // {
+   // //     console.log(error);
+   // // }
+   .finally(function() {
+    process.exit;
+   });
+  }
 
 }
+
+function insertChoices(choices, pollID) {
+  for (let choice of choices) {
+
+const insert2 = {choice_name: choice, poll_id: pollID};
+console.log(insert2);
+    knex.insert(insert2).into("choices").then(function (id) {
+    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+   })
+   // .catch(error)
+   // {
+   // //     console.log(error);
+   // // }
+   .finally(function() {
+    process.exit;
+   });
+  }
+
+}
+
 
 function insertPoll(title, description, admin_email) {
    const admin_link = generateRandomString(9);
    const voter_link = generateRandomString(6);
 
-
-   console.log("description log:", description);
    const insert = {poll_title: title, poll_description: description, admin_email: admin_email, admin_link: admin_link, voter_link: voter_link};
 
-   knex.insert(insert).into("poll").then(function (id) {
+   knex.returning('id').insert(insert).into("poll").then(function (id) {
+    pollID = id[0];
     console.log(id);
    })
    // .catch(error)
@@ -85,7 +133,8 @@ function insertPoll(title, description, admin_email) {
    // //     console.log(error);
    // // }
    .finally(function() {
-    knex.destroy();
+    process.exit;
+    //knex.destroy();
    });
 }
 
@@ -119,6 +168,35 @@ app.post("/poll", (req, res) => {
 app.get("/submit", (req, res) => {
   res.render("submit")
 });
+
+app.post("/submit", (req, res) => {
+  console.log(pollID);
+
+
+  let voterEmails = splitInputString(req.body["voter_email"]);
+  insertEmails(voterEmails, pollID);
+
+  let adminChoices = splitInputString(req.body["choice_name"]);
+  insertChoices(adminChoices, pollID);
+
+  res.redirect("/submit");
+
+
+// let voterEmails = splitInputString(req.body["voter_email"]);
+// let adminChoices = splitInputString(req.body["choice_name"]);
+
+
+  // insertEmails(voterEmails);
+  // res.render
+
+});
+
+
+
+
+
+
+
 
 //   // iterates thru array of split voter emails > log each instance to database.
 //   for (var i = 0; i <= voterEmails.length; i++) {
