@@ -17,6 +17,13 @@ const knexLogger  = require('knex-logger');
 // Seperated Routes for each Resource
 const usersRoutes = require("./routes/users");
 
+var api_key = 'key-0eadf04e0c1e885192e4dc2429b8f920';
+var domain = 'sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org';
+var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+
+
+
+
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
 //         The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
@@ -60,8 +67,21 @@ let pollID;
 
 
 
-//////////////////////////////////////////
-//////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+ //      ___           ___           ___           ___
+ //     /\__\         /\  \         /\  \         /\__\
+ //    /:/ _/_        \:\  \        \:\  \       /:/  /
+ //   /:/ /\__\        \:\  \        \:\  \     /:/  /
+ //  /:/ /:/  /    ___  \:\  \   _____\:\  \   /:/  /  ___
+ // /:/_/:/  /    /\  \  \:\__\ /::::::::\__\ /:/__/  /\__\
+ // \:\/:/  /     \:\  \ /:/  / \:\~~\~~\/__/ \:\  \ /:/  /
+ //  \::/__/       \:\  /:/  /   \:\  \        \:\  /:/  /
+ //   \:\  \        \:\/:/  /     \:\  \        \:\/:/  /
+ //    \:\__\        \::/  /       \:\__\        \::/  /
+ //     \/__/         \/__/         \/__/         \/__/
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -170,14 +190,30 @@ app.get("/submit", (req, res) => {
 });
 
 app.post("/submit", (req, res) => {
-  console.log(pollID);
-
-
   let voterEmails = splitInputString(req.body["voter_email"]);
   insertEmails(voterEmails, pollID);
 
   let adminChoices = splitInputString(req.body["choice_name"]);
   insertChoices(adminChoices, pollID);
+
+
+  var data = {
+  from: 'Admin User <postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+  to: 'm.b.aterman@gmail.com',
+  subject: 'Hello',
+  text: 'Testing some Mailgun awesomness!'
+  };
+
+  mailgun.messages().send(data, function (error, body) {
+    console.log(body);
+});
+
+
+
+
+
+
+
 
   res.redirect("/submit");
 
@@ -211,8 +247,21 @@ app.listen(PORT, () => {
 
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+//      ___           ___           ___
+//     /\__\         /\  \         /\  \
+//    /:/ _/_       |::\  \       /::\  \       ___
+//   /:/ /\__\      |:|:\  \     /:/\:\  \     /\__\
+//  /:/ /:/ _/_   __|:|\:\  \   /:/ /::\  \   /:/__/      ___     ___
+// /:/_/:/ /\__\ /::::|_\:\__\ /:/_/:/\:\__\ /::\  \     /\  \   /\__\
+// \:\/:/ /:/  / \:\~~\  \/__/ \:\/:/  \/__/ \/\:\  \__  \:\  \ /:/  /
+//  \::/_/:/  /   \:\  \        \::/__/       ~~\:\/\__\  \:\  /:/  /
+//   \:\/:/  /     \:\  \        \:\  \          \::/  /   \:\/:/  /
+//    \::/  /       \:\__\        \:\__\         /:/  /     \::/  /
+//     \/__/         \/__/         \/__/         \/__/       \/__/
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 
 
 
