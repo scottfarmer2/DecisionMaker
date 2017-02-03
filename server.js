@@ -41,6 +41,8 @@ app.use("/styles", sass({
   outputStyle: 'expanded'
 }));
 app.use(express.static("public"));
+app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 
 // Mount all resource routes
 // app.use("/api/users", usersRoutes(knex));
@@ -58,14 +60,12 @@ app.use(express.static("public"));
 //////////////////////////////////////////
 //////////////////////////////////////////
 
-let pollID;
 
+///adding two variables like pollID
 
+let voterID;
 
-
-
-
-
+let choiceID;
 
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -121,8 +121,8 @@ console.log(insert3);
 function insertChoices(choices, pollID) {
   for (let choice of choices) {
 
-const insert2 = {choice_name: choice, poll_id: pollID};
-console.log(insert2);
+  const insert2 = {choice_name: choice, poll_id: pollID};
+  console.log(insert2);
     knex.insert(insert2).into("choices").then(function (id) {
     // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
    })
@@ -134,19 +134,18 @@ console.log(insert2);
     process.exit;
    });
   }
-
 }
 
 
-function insertPoll(title, description, admin_email) {
+function insertPoll(title, description, admin_email, callback) {
    const admin_link = generateRandomString(9);
    const voter_link = generateRandomString(6);
 
    const insert = {poll_title: title, poll_description: description, admin_email: admin_email, admin_link: admin_link, voter_link: voter_link};
 
    knex.returning('id').insert(insert).into("poll").then(function (id) {
-    pollID = id[0];
-    //console.log(id);
+    callback(id[0]);
+    console.log(id);
    })
    // .catch(error)
    // {
@@ -158,6 +157,14 @@ function insertPoll(title, description, admin_email) {
    });
 }
 
+
+// function insertVoterChoices(preference, choiceID, voterID) {
+//   const preference = //HERE IS THE NAME OF THE FUNCTION THAT CAN CALCULATE
+
+//   const insert4 = {preference: preference, choice_id: choiceID, voter_id: voterID};
+
+//   knex.returning
+// }
 
 //////////////////////////////////////////
 //////////////////////////////////////////
@@ -172,77 +179,59 @@ app.post("/poll", (req, res) => {
   let description = req.body["poll_description"];
   let adminEmail = req.body["admin_email"];
 
-  insertPoll(title, description, adminEmail);
-  res.redirect("/submit");
+  insertPoll(title, description, adminEmail,(pollID) => {
 
+    let voterEmails = splitInputString(req.body["voter_email"]);
+    insertEmails(voterEmails, pollID);
 
-// let voterEmails = splitInputString(req.body["voter_email"]);
-// let adminChoices = splitInputString(req.body["choice_name"]);
+    let adminChoices = splitInputString(req.body["choice_name"]);
+    insertChoices(adminChoices, pollID);
 
+      var bodyText = req.body['choice_name']
+      var recipients = req.body['voter_email']
+      // console.log('recipients:', recipients);
+      // console.log('bodyText:', bodyText);
 
-  // insertEmails(voterEmails);
-  // res.render
+      var data = {
+      from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+      to: recipients,
+      subject: 'Hello',
+      text: bodyText
+      };
 
-});
+      mailgun.messages().send(data, function (error, body) {
+        console.log(body);
+    });
 
-app.get("/submit", (req, res) => {
-  res.render("submit")
-});
-
-app.post("/submit", (req, res) => {
-  let voterEmails = splitInputString(req.body["voter_email"]);
-  insertEmails(voterEmails, pollID);
-
-  let adminChoices = splitInputString(req.body["choice_name"]);
-  insertChoices(adminChoices, pollID);
-  var bodyText = req.body['choice_name']
-  var recipients = req.body['voter_email']
-  console.log('recipients:', recipients);
-  console.log('bodyText:', bodyText);
-
-  var data = {
-  from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
-  to: recipients,
-  subject: 'Hello',
-  text: bodyText
-  };
-
-  mailgun.messages().send(data, function (error, body) {
-    console.log(body);
+  res.redirect("/poll_table");
+  });
 });
 
 
+///////////////////////////////////////////////
 
+app.get("/poll_table/:id", (req, res) => {
 
+  // let choices = knex.select('choice_id', 'choice_name')
+  // .from('choices')
+  // .where({
+  //   'choice_id': choice_id,
+  //   'choice_name': choice_name
+  // })
+  // .then(result) => { console.log(result)
+  //   return result;
+  // }
+  // let choices = knex.select('choice_id', 'choice_name').from('choices')
+  // console.log(choices);
 
-
-
-
-  res.redirect("/submit");
-
-
-// let voterEmails = splitInputString(req.body["voter_email"]);
-// let adminChoices = splitInputString(req.body["choice_name"]);
-
-
-  // insertEmails(voterEmails);
-  // res.render
-
+  res.render("poll_table", choices);
 });
 
+app.post("/poll_table", (req, res) => {
+  console.log(pollID, voter);
+});
 
-
-
-
-
-
-
-//   // iterates thru array of split voter emails > log each instance to database.
-//   for (var i = 0; i <= voterEmails.length; i++) {
-//   voterEmails[i];
-//    //console.log(voterEmails[i]);
-//  }
-// })
+///////////////////////////////////////////////
 
 app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);

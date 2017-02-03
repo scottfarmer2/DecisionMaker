@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <title>Decision Maker</title>
+
+  <%include partials/_header%>
+
+ </head>
+
+ <body>
+  <h1>Poll Title</h1>
+
+  <ol class='example'>
+  <%for (var choice in choices)%>
+    <li data-id="<%= choices[choice_id]%>">
+    <%=choices[choice_name]%>
+    </li>
+    <li data-id="2" data-name="second">Second</li>
+    <li data-id="3" data-name="third">Third</li>
+  </ol>
+
+
+ </body>
+</html>
