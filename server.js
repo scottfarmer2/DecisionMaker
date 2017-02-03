@@ -144,7 +144,7 @@ function insertPoll(title, description, admin_email, callback) {
    const insert = {poll_title: title, poll_description: description, admin_email: admin_email, admin_link: admin_link, voter_link: voter_link};
 
    knex.returning('id').insert(insert).into("poll").then(function (id) {
-    callback(id[0]);
+    callback(id[0], admin_link, voter_link);
     console.log(id);
    })
    // .catch(error)
@@ -179,7 +179,7 @@ app.post("/poll", (req, res) => {
   let description = req.body["poll_description"];
   let adminEmail = req.body["admin_email"];
 
-  insertPoll(title, description, adminEmail,(pollID) => {
+  insertPoll(title, description, adminEmail,(pollID, admin_link, voter_link) => {
 
     let voterEmails = splitInputString(req.body["voter_email"]);
     insertEmails(voterEmails, pollID);
@@ -187,7 +187,7 @@ app.post("/poll", (req, res) => {
     let adminChoices = splitInputString(req.body["choice_name"]);
     insertChoices(adminChoices, pollID);
 
-      var bodyText = req.body['choice_name']
+      var voterlinkText = "A friend has invited you to vote in a poll at: placeholder.url/" + voter_link;
       var recipients = req.body['voter_email']
       // console.log('recipients:', recipients);
       // console.log('bodyText:', bodyText);
@@ -196,7 +196,7 @@ app.post("/poll", (req, res) => {
       from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
       to: recipients,
       subject: 'Hello',
-      text: bodyText
+      text: voterlinkText
       };
 
       mailgun.messages().send(data, function (error, body) {
