@@ -93,19 +93,19 @@ function generateRandomString(length) {
 }
 
 function splitInputString(input) {
- var splitUP = input.split(";")
+ var splitUP = input.split(",")
  return splitUP;
 }
 
 
 function insertEmails(voter, pollID) {
    for (let email of voter) {
-console.log('helloooooooooo')
+// console.log('helloooooooooo')
 
 const insert3 = {voter_email: email, poll_id: pollID};
 console.log(insert3);
     knex.insert(insert3).into("voter").then(function (id) {
-    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+    // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
    })
    // .catch(error)
    // {
@@ -124,7 +124,7 @@ function insertChoices(choices, pollID) {
 const insert2 = {choice_name: choice, poll_id: pollID};
 console.log(insert2);
     knex.insert(insert2).into("choices").then(function (id) {
-    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+    // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
    })
    // .catch(error)
    // {
@@ -146,7 +146,7 @@ function insertPoll(title, description, admin_email) {
 
    knex.returning('id').insert(insert).into("poll").then(function (id) {
     pollID = id[0];
-    console.log(id);
+    //console.log(id);
    })
    // .catch(error)
    // {
@@ -195,13 +195,16 @@ app.post("/submit", (req, res) => {
 
   let adminChoices = splitInputString(req.body["choice_name"]);
   insertChoices(adminChoices, pollID);
-
+  var bodyText = req.body['choice_name']
+  var recipients = req.body['voter_email']
+  console.log('recipients:', recipients);
+  console.log('bodyText:', bodyText);
 
   var data = {
-  from: 'Admin User <postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
-  to: 'm.b.aterman@gmail.com',
+  from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+  to: recipients,
   subject: 'Hello',
-  text: 'Testing some Mailgun awesomness!'
+  text: bodyText
   };
 
   mailgun.messages().send(data, function (error, body) {
