@@ -137,6 +137,26 @@ function insertPoll(title, description, admin_email, callback) {
    });
 }
 
+// function insertEmails(voter, pollID) {
+//    for (let email of voter) {
+// console.log('helloooooooooo')
+
+// const insert3 = {voter_email: email, poll_id: pollID};
+// console.log(insert3);
+//     knex.insert(insert3).into("voter").then(function (id) {
+//     console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+//    })
+//    // .catch(error)
+//    // {
+//    // //     console.log(error);
+//    // // }
+//    .finally(function() {
+//     process.exit;
+//    });
+//   }
+
+// }
+
 
 // function insertVoterChoices(preference, choiceID, voterID) {
 //   const preference = //HERE IS THE NAME OF THE FUNCTION THAT CAN CALCULATE
@@ -168,43 +188,29 @@ app.post("/poll", (req, res) => {
 
   let adminChoices = splitInputString(req.body["choice_name"]);
   insertChoices(adminChoices, pollID);
-  res.redirect("/poll_table");
+  res.redirect("/poll_table/");
 
   });
 });
 
-// app.get("/submit", (req, res) => {
-//   res.render("submit")
-// });
-
-// app.post("/submit", (req, res) => {
-//   console.log(pollID);
-
-
-
-
-//   res.redirect("/poll_table");
-
-
-// });
 
 ///////////////////////////////////////////////
 
 app.get("/poll_table/:id", (req, res) => {
 
-  // let choices = knex.select('choice_id', 'choice_name')
-  // .from('choices')
-  // .where({
-  //   'choice_id': choice_id,
-  //   'choice_name': choice_name
-  // })
-  // .then(result) => { console.log(result)
-  //   return result;
-  // }
-  // let choices = knex.select('choice_id', 'choice_name').from('choices')
-  // console.log(choices);
+  knex.select('*')
+  .from('choices')
+  .where({
+    'poll_id': req.params.id
+  })
+  .then((result) => {
+    console.log(result)
+    let template = {choices: result};
+    console.log(template);
+    res.render("poll_table", template);
+  });
 
-  res.render("poll_table", choices);
+
 });
 
 app.post("/poll_table", (req, res) => {

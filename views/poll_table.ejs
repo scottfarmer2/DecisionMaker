@@ -11,12 +11,14 @@
   <h1>Poll Title</h1>
 
   <ol class='example'>
-  <%for (var choice in choices)%>
-    <li data-id="<%= choices[choice_id]%>">
-    <%=choices[choice_name]%>
+  <% for (var choice of choices) { %>
+
+    <li data-id="<%= choice.choice_id %>">
+    <%= choice.choice_name %>
     </li>
-    <li data-id="2" data-name="second">Second</li>
-    <li data-id="3" data-name="third">Third</li>
+
+
+  <% } %>
   </ol>
 
 
