@@ -187,10 +187,12 @@ app.post("/poll", (req, res) => {
     let adminChoices = splitInputString(req.body["choice_name"]);
     insertChoices(adminChoices, pollID);
 
+
+      var adminlinkText = "You have created a poll at: placeholder.url/" + admin_link;
       var voterlinkText = "A friend has invited you to vote in a poll at: placeholder.url/" + voter_link;
       var recipients = req.body['voter_email']
-      // console.log('recipients:', recipients);
-      // console.log('bodyText:', bodyText);
+
+
 
       var data = {
       from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
@@ -201,7 +203,21 @@ app.post("/poll", (req, res) => {
 
       mailgun.messages().send(data, function (error, body) {
         console.log(body);
-    });
+      });
+
+
+
+
+      var adminData = {
+      from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+      to: adminEmail,
+      subject: 'Hello',
+      text: adminlinkText
+      };
+
+      mailgun.messages().send(adminData, function (error, body) {
+        console.log(body);
+      });
 
   res.redirect("/poll_table");
   });
