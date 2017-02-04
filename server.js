@@ -17,6 +17,13 @@ const knexLogger  = require('knex-logger');
 // Seperated Routes for each Resource
 const usersRoutes = require("./routes/users");
 
+var api_key = 'key-0eadf04e0c1e885192e4dc2429b8f920';
+var domain = 'sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org';
+var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+
+
+
+
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
 //         The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
@@ -60,8 +67,21 @@ app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 
 // let choiceID;
 
-//////////////////////////////////////////
-//////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+ //      ___           ___           ___           ___
+ //     /\__\         /\  \         /\  \         /\__\
+ //    /:/ _/_        \:\  \        \:\  \       /:/  /
+ //   /:/ /\__\        \:\  \        \:\  \     /:/  /
+ //  /:/ /:/  /    ___  \:\  \   _____\:\  \   /:/  /  ___
+ // /:/_/:/  /    /\  \  \:\__\ /::::::::\__\ /:/__/  /\__\
+ // \:\/:/  /     \:\  \ /:/  / \:\~~\~~\/__/ \:\  \ /:/  /
+ //  \::/__/       \:\  /:/  /   \:\  \        \:\  /:/  /
+ //   \:\  \        \:\/:/  /     \:\  \        \:\/:/  /
+ //    \:\__\        \::/  /       \:\__\        \::/  /
+ //     \/__/         \/__/         \/__/         \/__/
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -100,12 +120,12 @@ function insertPoll(title, description, admin_email, callback) {
 
 function insertEmails(voter, pollID) {
    for (let email of voter) {
-console.log('helloooooooooo')
+// console.log('helloooooooooo')
 
 const insert3 = {voter_email: email, poll_id: pollID};
 console.log(insert3);
     knex.insert(insert3).into("voter").then(function (id) {
-    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+    // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
    })
    // .catch(error)
    // {
@@ -124,7 +144,7 @@ function insertChoices(choices, pollID) {
   const insert2 = {choice_name: choice, poll_id: pollID};
   console.log(insert2);
     knex.insert(insert2).into("choices").then(function (id) {
-    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+    // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
    })
    // .catch(error)
    // {
@@ -141,11 +161,17 @@ function insertChoices(choices, pollID) {
 
 function insertResult(preference, choiceID) {
 
+// <<<<<<< HEAD
 const insert4 = {preference: preference, choice_id: choiceID};
 console.log(insert4);
     knex.insert(insert4).into("voterChoices").then(function (id) {
     console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
-   })
+// =======
+//    knex.returning('id').insert(insert).into("poll").then(function (id) {
+//     callback(id[0], admin_link, voter_link);
+//     console.log(id);
+// >>>>>>> mailGun
+//    })
    // .catch(error)
    // {
    // //     console.log(error);
@@ -178,25 +204,47 @@ app.post("/poll", (req, res) => {
   let description = req.body["poll_description"];
   let adminEmail = req.body["admin_email"];
 
-  insertPoll(title, description, adminEmail,(pollID) => {
+  insertPoll(title, description, adminEmail,(pollID, admin_link, voter_link) => {
+
+    let voterEmails = splitInputString(req.body["voter_email"]);
+    insertEmails(voterEmails, pollID);
+
+    let adminChoices = splitInputString(req.body["choice_name"]);
+    insertChoices(adminChoices, pollID);
 
 
-
-  let voterEmails = splitInputString(req.body["voter_email"]);
-  insertEmails(voterEmails, pollID);
-
+// <<<<<<< HEAD
   let adminChoices = splitInputString(req.body["choice_name"]);
   insertChoices(adminChoices, pollID);
   res.redirect("/poll_table/"+pollID);
+// =======
+      var adminlinkText = "You have created a poll at: placeholder.url/" + admin_link;
+      var voterlinkText = "A friend has invited you to vote in a poll at: placeholder.url/" + voter_link;
+      var recipients = req.body['voter_email']
 
-  });
-});
+// >>>>>>> mailGun
 
+
+// <<<<<<< HEAD
+// =======
+      var data = {
+      from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+      to: recipients,
+      subject: 'Hello',
+      text: voterlinkText
+      };
+
+      mailgun.messages().send(data, function (error, body) {
+        console.log(body);
+      });
+
+// >>>>>>> mailGun
 
 ///////////////////////////////////////////////
 
 app.get("/poll_table/:id", (req, res) => {
 
+// <<<<<<< HEAD
   knex.select('choice_name')
   .from('choices').join ('poll', function() {
   this.on('choices.poll_id', '=', 'poll.id')
@@ -209,7 +257,22 @@ app.get("/poll_table/:id", (req, res) => {
     console.log(template);
     res.render("poll_table", template);
   });
+// =======
+      var adminData = {
+      from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+      to: adminEmail,
+      subject: 'Hello',
+      text: adminlinkText
+      };
+// >>>>>>> mailGun
 
+      mailgun.messages().send(adminData, function (error, body) {
+        console.log(body);
+      });
+
+  res.redirect("/poll_table");
+  });
+});
 
 
 app.post("/poll_table/:id", (req, res) => {
@@ -227,7 +290,20 @@ app.listen(PORT, () => {
 
 
 
-
-
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+//      ___           ___           ___
+//     /\__\         /\  \         /\  \
+//    /:/ _/_       |::\  \       /::\  \       ___
+//   /:/ /\__\      |:|:\  \     /:/\:\  \     /\__\
+//  /:/ /:/ _/_   __|:|\:\  \   /:/ /::\  \   /:/__/      ___     ___
+// /:/_/:/ /\__\ /::::|_\:\__\ /:/_/:/\:\__\ /::\  \     /\  \   /\__\
+// \:\/:/ /:/  / \:\~~\  \/__/ \:\/:/  \/__/ \/\:\  \__  \:\  \ /:/  /
+//  \::/_/:/  /   \:\  \        \::/__/       ~~\:\/\__\  \:\  /:/  /
+//   \:\/:/  /     \:\  \        \:\  \          \::/  /   \:\/:/  /
+//    \::/  /       \:\__\        \:\__\         /:/  /     \::/  /
+//     \/__/         \/__/         \/__/         \/__/       \/__/
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
 
 

@@ -22,7 +22,8 @@
     "morgan": "^1.7.0",
     "node-sass-middleware": "^0.9.8",
     "nodemon": "^1.11.0",
-    "pg": "^6.1.2"
+    "pg": "^6.1.2",
+    "mailgun-js":"latest"
   },
   "devDependencies": {
     "nodemon": "^1.9.2"
