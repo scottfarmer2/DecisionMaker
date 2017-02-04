@@ -56,9 +56,9 @@ app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 
 ///adding two variables like pollID
 
-let voterID;
+// let voterID;
 
-let choiceID;
+// let choiceID;
 
 //////////////////////////////////////////
 //////////////////////////////////////////
@@ -75,6 +75,26 @@ function generateRandomString(length) {
 function splitInputString(input) {
  var splitUP = input.split(";")
  return splitUP;
+}
+
+function insertPoll(title, description, admin_email, callback) {
+   const admin_link = generateRandomString(9);
+   const voter_link = generateRandomString(6);
+
+   const insert = {poll_title: title, poll_description: description, admin_email: admin_email, admin_link: admin_link, voter_link: voter_link};
+
+   knex.returning('id').insert(insert).into("poll").then(function (id) {
+    callback(id[0]);
+    console.log(id);
+   })
+   // .catch(error)
+   // {
+   // //     console.log(error);
+   // // }
+   .finally(function() {
+    process.exit;
+    //knex.destroy();
+   });
 }
 
 
@@ -117,15 +137,14 @@ function insertChoices(choices, pollID) {
 }
 
 
-function insertPoll(title, description, admin_email, callback) {
-   const admin_link = generateRandomString(9);
-   const voter_link = generateRandomString(6);
+//this function is to grab the results from our polltable
 
-   const insert = {poll_title: title, poll_description: description, admin_email: admin_email, admin_link: admin_link, voter_link: voter_link};
+function insertResult(preference, choiceID) {
 
-   knex.returning('id').insert(insert).into("poll").then(function (id) {
-    callback(id[0]);
-    console.log(id);
+const insert4 = {preference: preference, choice_id: choiceID};
+console.log(insert4);
+    knex.insert(insert4).into("voterChoices").then(function (id) {
+    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
    })
    // .catch(error)
    // {
@@ -133,29 +152,9 @@ function insertPoll(title, description, admin_email, callback) {
    // // }
    .finally(function() {
     process.exit;
-    //knex.destroy();
    });
-}
+  }
 
-// function insertEmails(voter, pollID) {
-//    for (let email of voter) {
-// console.log('helloooooooooo')
-
-// const insert3 = {voter_email: email, poll_id: pollID};
-// console.log(insert3);
-//     knex.insert(insert3).into("voter").then(function (id) {
-//     console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
-//    })
-//    // .catch(error)
-//    // {
-//    // //     console.log(error);
-//    // // }
-//    .finally(function() {
-//     process.exit;
-//    });
-//   }
-
-// }
 
 
 // function insertVoterChoices(preference, choiceID, voterID) {
@@ -198,10 +197,10 @@ app.post("/poll", (req, res) => {
 
 app.get("/poll_table/:id", (req, res) => {
 
-  knex.select('*')
-  .from('choices')
-  .where({
-    'poll_id': req.params.id
+  knex.SELECT('choice_name')
+  .FROM('choices').JOIN poll ON ('poll_id' = 'id')
+  .WHERE({
+    'voter_link': req.params.id
   })
   .then((result) => {
     console.log(result)
@@ -213,8 +212,11 @@ app.get("/poll_table/:id", (req, res) => {
 
 });
 
-app.post("/poll_table", (req, res) => {
-  console.log(pollID, voter);
+app.post("/poll_table/:id", (req, res) => {
+  let preference = insertResult(req.body["preference"]);
+  insertResult(preference, choiceID);
+
+  res.redirect("/submission")
 });
 
 ///////////////////////////////////////////////

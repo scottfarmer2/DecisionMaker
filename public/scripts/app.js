@@ -1,6 +1,6 @@
 // $(() => {
 //   $.ajax({
-//     method: "GET",
+//     method: "POST",
 //     url: "/api/users"
 //   }).done((users) => {
 //     for(user of users) {
@@ -12,9 +12,25 @@
 
 
 $(function  () {
-  console.log('heellloooooooooooooo');
-  $("ol.example").sortable({
-  group: 'serialization'});
+
+  let listData = $("ol.choices").sortable({group: 'serialization'});
+
+  $('#submit-button').on('click', function(event) {
+    event.preventDefault();
+    let serializedData = (listData).sortable('serialize').get()[0];
+      console.log(serializedData);
+
+      $.ajax({
+        method: 'POST',
+        url:'/poll_table/',
+        data: listData
+      })
+
+
+    });
+
+
+
 });
 
 
