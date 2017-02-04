@@ -165,8 +165,11 @@ function insertResult(preference, choiceID) {
 const insert4 = {preference: preference, choice_id: choiceID};
 console.log(insert4);
     knex.insert(insert4).into("voterChoices").then(function (id) {
-    console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id);
+    // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id)
+    })
+
 // =======
+
 //    knex.returning('id').insert(insert).into("poll").then(function (id) {
 //     callback(id[0], admin_link, voter_link);
 //     console.log(id);
@@ -179,7 +182,8 @@ console.log(insert4);
    .finally(function() {
     process.exit;
    });
-  }
+}
+
 
 
 
@@ -209,8 +213,8 @@ app.post("/poll", (req, res) => {
     let voterEmails = splitInputString(req.body["voter_email"]);
     insertEmails(voterEmails, pollID);
 
-    let adminChoices = splitInputString(req.body["choice_name"]);
-    insertChoices(adminChoices, pollID);
+    // let adminChoices = splitInputString(req.body["choice_name"]);
+    // insertChoices(adminChoices, pollID);
 
 
 // <<<<<<< HEAD
@@ -237,7 +241,8 @@ app.post("/poll", (req, res) => {
       mailgun.messages().send(data, function (error, body) {
         console.log(body);
       });
-
+  })
+});
 // >>>>>>> mailGun
 
 ///////////////////////////////////////////////
@@ -245,32 +250,36 @@ app.post("/poll", (req, res) => {
 app.get("/poll_table/:id", (req, res) => {
 
 // <<<<<<< HEAD
-  knex.select('choice_name')
-  .from('choices').join ('poll', function() {
-  this.on('choices.poll_id', '=', 'poll.id')
+  // res.render("/poll_table");
+  knex.select('*')
+  .from('choices')
+  // poll_id', '=', 'poll.id')
   .where({
-    'poll.voter_link': req.params.id
-  });
+    'poll_id': req.params.id
   })
-    console.log(result)
+  .then((result) => {
+
+
+
+    // console.log(result)
     let template = {choices: result};
     console.log(template);
-    res.render("poll_table", template);
-  });
+
+
 // =======
-      var adminData = {
-      from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
-      to: adminEmail,
-      subject: 'Hello',
-      text: adminlinkText
-      };
-// >>>>>>> mailGun
+//       var adminData = {
+//       from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+//       to: adminEmail,
+//       subject: 'Hello',
+//       text: adminlinkText
+//       };
+// // >>>>>>> mailGun
 
-      mailgun.messages().send(adminData, function (error, body) {
-        console.log(body);
-      });
-
-  res.redirect("/poll_table");
+//       mailgun.messages().send(adminData, function (error, body) {
+//         console.log(body);
+//       });
+  res.render("poll_table", template)
+  // res.redirect("/poll_table");
   });
 });
 
