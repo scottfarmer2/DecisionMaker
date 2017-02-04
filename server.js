@@ -159,21 +159,20 @@ function insertChoices(choices, pollID) {
 
 //this function is to grab the results from our polltable
 
-function insertResult(preference, choiceID) {
+function insertResult(preference, cb) {
 
 // <<<<<<< HEAD
-const insert4 = {preference: preference, choice_id: choiceID};
-console.log(insert4);
-    knex.insert(insert4).into("voterChoices").then(function (id) {
+  const insert4 = {preference: preference, choice_id: choiceID};
+
+  knex.returning('id').insert(insert4).into("voterChoices").then(function (id) {
+    cb(choice_id[0]);
+    console.log(choice_id);
+   })
+    // knex.insert(insert4).into("voterChoices").then(function (id) {
     // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id)
-    })
+    // })
 
-// =======
 
-//    knex.returning('id').insert(insert).into("poll").then(function (id) {
-//     callback(id[0], admin_link, voter_link);
-//     console.log(id);
-// >>>>>>> mailGun
 //    })
    // .catch(error)
    // {
@@ -285,10 +284,19 @@ app.get("/poll_table/:id", (req, res) => {
 
 
 app.post("/poll_table/:id", (req, res) => {
+
+  knex.select('*')
+  .from('choices')
+  .where({
+    'poll_id': req.params.id
+  })
+
   let preference = insertResult(req.body["preference"]);
-  insertResult(preference, choiceID);
+  insertResult(preference, (choiceID) => {
+    insert(choiceID);
 
   res.redirect("/submission")
+  });
 });
 
 ///////////////////////////////////////////////

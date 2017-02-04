@@ -22,8 +22,8 @@ $(function  () {
 
       $.ajax({
         method: 'POST',
-        url:'/poll_table/',
-        data: listData
+        url:'/poll_table',
+        data: serializedData
       })
 
 
