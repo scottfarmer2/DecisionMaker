@@ -73,7 +73,7 @@ function generateRandomString(length) {
 }
 
 function splitInputString(input) {
- var splitUP = input.split(";")
+ var splitUP = input.split(",")
  return splitUP;
 }
 
@@ -187,7 +187,7 @@ app.post("/poll", (req, res) => {
 
   let adminChoices = splitInputString(req.body["choice_name"]);
   insertChoices(adminChoices, pollID);
-  res.redirect("/poll_table/");
+  res.redirect("/poll_table/"+pollID);
 
   });
 });
@@ -197,12 +197,13 @@ app.post("/poll", (req, res) => {
 
 app.get("/poll_table/:id", (req, res) => {
 
-  knex.SELECT('choice_name')
-  .FROM('choices').JOIN poll ON ('poll_id' = 'id')
-  .WHERE({
-    'voter_link': req.params.id
+  knex.select('choice_name')
+  .from('choices').join ('poll', function() {
+  this.on('choices.poll_id', '=', 'poll.id')
+  .where({
+    'poll.voter_link': req.params.id
+  });
   })
-  .then((result) => {
     console.log(result)
     let template = {choices: result};
     console.log(template);
@@ -210,7 +211,6 @@ app.get("/poll_table/:id", (req, res) => {
   });
 
 
-});
 
 app.post("/poll_table/:id", (req, res) => {
   let preference = insertResult(req.body["preference"]);
@@ -224,8 +224,6 @@ app.post("/poll_table/:id", (req, res) => {
 app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
 });
-
-
 
 
 
