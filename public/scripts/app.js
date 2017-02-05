@@ -20,11 +20,11 @@ $(function  () {
     let serializedData = (listData).sortable('serialize').get()[0];
       console.log(serializedData);
 
-      $.ajax({
-        method: 'POST',
-        url:'/poll_table',
-        data: serializedData
-      })
+      // $.ajax({
+      //   method: 'POST',
+      //   url:'/poll_table',
+      //   data: serializedData
+      // })
 
 
     });
