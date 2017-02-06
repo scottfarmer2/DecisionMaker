@@ -186,9 +186,16 @@ function insertResult(preference, cb) {
 //////////////////////////////////////////
 //////////////////////////////////////////
 
-// Home page
 app.get("/", (req, res) => {
-  res.render("index");
+ res.render("homepage");
+})
+
+app.post("/", (req, res) => {
+ res.redirect("/poll")
+})
+
+app.get("/poll", (req, res) => {
+ res.render("index");
 });
 
 app.post("/poll", (req, res) => {
