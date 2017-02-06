@@ -61,7 +61,7 @@ app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 
-
+// This function will only be for when the app is fully funtional.
 
 function generateRandomString(length) {
  var chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789'
@@ -69,6 +69,8 @@ function generateRandomString(length) {
    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
    return result;
 }
+
+// Spilt the sting for the options and voter emails.
 
 function splitInputString(input) {
  var splitUP = input.split(",")
@@ -184,38 +186,35 @@ app.post("/poll", (req, res) => {
     let voterEmails = splitInputString(req.body["voter_email"]);
     insertEmails(voterEmails, pollID);
 
-    // let adminChoices = splitInputString(req.body["choice_name"]);
-    // insertChoices(adminChoices, pollID);
 
+    let adminChoices = splitInputString(req.body["choice_name"]);
+    insertChoices(adminChoices, pollID);
+    res.redirect("/poll_table/"+pollID);
 
-  let adminChoices = splitInputString(req.body["choice_name"]);
-  insertChoices(adminChoices, pollID);
-  res.redirect("/poll_table/"+pollID);
+    let adminlinkText = "You have created a poll at: localhost:8080/poll_result/" + pollID;
+    let voterlinkText = "A friend has invited you to vote in a poll at: localhost:8080/poll_table/" + pollID;
+    let recipients = req.body['voter_email']
 
-  let adminlinkText = "You have created a poll at: localhost:8080/poll_result/" + pollID;
-  let voterlinkText = "A friend has invited you to vote in a poll at: localhost:8080/poll_table/" + pollID;
-  let recipients = req.body['voter_email']
+    let data = {
+    from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+    to: recipients,
+    subject: 'Hello',
+    text: voterlinkText,
+    };
 
-  let data = {
-  from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
-  to: recipients,
-  subject: 'Hello',
-  text: voterlinkText,
-  };
+    mailgun.messages().send(data, function (error, body) {
+      console.log(body);
+    });
 
-  mailgun.messages().send(data, function (error, body) {
-    console.log(body);
-  });
+    let adminData = {
+    from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
+    to: adminEmail,
+    subject: 'Hello',
+    text: adminlinkText,voterlinkText,
+    };
 
-  let adminData = {
-  from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
-  to: adminEmail,
-  subject: 'Hello',
-  text: adminlinkText,voterlinkText,
-  };
-
-  mailgun.messages().send(adminData, function (error, body) {
-    console.log(body);
+    mailgun.messages().send(adminData, function (error, body) {
+      console.log(body);
   });
 
 
