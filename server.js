@@ -158,15 +158,16 @@ function insertResult(preference, cb) {
 //////////////////////////////////////////
 //////////////////////////////////////////
 
+
 // Home page
 
 app.get("/", (req, res) => {
   res.render("homepage");
-})
+});
 
 app.post("/", (req, res) => {
   res.redirect("/poll")
-})
+});
 
 
 app.get("/poll", (req, res) => {
