@@ -10,26 +10,28 @@
  <body>
   <h1>Poll Title</h1>
 
-
-  <ol class='choices'>
+   <h2>Poll rankings:</h2>
+  <ol>
   <% for (var choice of choices) { %>
 
 
-    <li class='choice-item' data-id="<%= choice.choice_id %>" data-count="<%= choice.borda_score %>">
+    <li data-id="<%= choice.choice_id %>" data-count="<%= choice.borda_score %>">
+
+
+
+    Choice:
     <%= choice.choice_name %>
+
+    -
+
+    Preferential Score:
+    <%= choice.borda_score %>
     </li>
 
   <% } %>
   </ol>
 
-  <button id='submit-button'">Submit your results</button>
 
 
  </body>
 </html>
-
-
-
-
-
-

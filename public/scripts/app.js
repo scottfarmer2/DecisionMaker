@@ -18,19 +18,26 @@ $(function  () {
   $('#submit-button').on('click', function(event) {
     event.preventDefault();
     let serializedData = (listData).sortable('serialize').get()[0];
-      console.log(serializedData);
+    const numChoices = serializedData.length;
 
-      // $.ajax({
-      //   method: 'POST',
-      //   url:'/poll_table',
-      //   data: serializedData
-      // })
+    for (var i = 0; i < serializedData.length; i++) {
+      serializedData[i].count += serializedData.length - i;
+    }
 
+    const info = JSON.stringify({data: serializedData});
+    const parsed = JSON.parse(info);
 
-    });
+    $.ajax({
+       method: 'POST',
+       url:'/submit',
+       dataType: 'json',
+       data: parsed,
+       success: function(error) {
+         console.log(error);
+       }
+     })
 
-
-
+  });
 });
 
 

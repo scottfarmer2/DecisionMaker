@@ -229,7 +229,9 @@ app.post("/poll", (req, res) => {
 
 ///////////////////////////////////////////////
 
-app.get("/poll_table/:id", (req, res) => {
+app.route("/poll_table/:id")
+
+  .get((req, res) => {
 
   knex.select('*')
   .from('choices')
@@ -237,44 +239,56 @@ app.get("/poll_table/:id", (req, res) => {
     'poll_id': req.params.id
   })
   .then((result) => {
-
-
-
-    // console.log(result)
     let template = {choices: result};
     console.log(template);
-
-
-// =======
-//       var adminData = {
-//       from: 'Admin<postmaster@sandboxcb6c320ee634462d9bcd2f3a3b4d0377.mailgun.org>',
-//       to: adminEmail,
-//       subject: 'Hello',
-//       text: adminlinkText
-//       };
-// // >>>>>>> mailGun
-
-//       mailgun.messages().send(adminData, function (error, body) {
-//         console.log(body);
-//       });
   res.render("poll_table", template)
-  });
+  })
 });
 
 
-app.post("/poll_table", (req, res) => {
+app.route("/poll_table")
 
-  // knex.select('*')
-  // .from('choices')
-  // .where({
-  //   'poll_id': req.params.id
-  // })
-
+  .post((req, res) => {
   let preference = insertResult(req.body["preference"]);
   insertResult(preference, (choiceID) => {
     insert(choiceID);
-
   res.redirect("/submission")
+  })
+
+});
+
+app.route("/submit")
+
+  .post((req, res) => {
+    let choicesArray = req.body.data;
+    let completed = 0;
+
+    for(var i = 0 ; i < choicesArray.length; i++){
+
+      knex("choices")
+      .where("choice_id", "=", choicesArray[i].id)
+      .update({"borda_score": choicesArray[i].count})
+      .then((result) => {
+        console.log('updated', result);
+      })
+    }
+
+    res.redirect('/success');
+  });
+
+
+
+app.get("/poll_result/:id", (req, res) => {
+  let id = req.params.id;
+  knex.select('choice_name', 'borda_score')
+  .from('choices')
+  .where({
+    'poll_id': req.params.id
+  })
+  .then((result) => {
+    let template = {choices: result};
+    console.log(template);
+    res.render("poll_result", template)
   });
 });
 
@@ -285,21 +299,5 @@ app.listen(PORT, () => {
 });
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
-//      ___           ___           ___
-//     /\__\         /\  \         /\  \
-//    /:/ _/_       |::\  \       /::\  \       ___
-//   /:/ /\__\      |:|:\  \     /:/\:\  \     /\__\
-//  /:/ /:/ _/_   __|:|\:\  \   /:/ /::\  \   /:/__/      ___     ___
-// /:/_/:/ /\__\ /::::|_\:\__\ /:/_/:/\:\__\ /::\  \     /\  \   /\__\
-// \:\/:/ /:/  / \:\~~\  \/__/ \:\/:/  \/__/ \/\:\  \__  \:\  \ /:/  /
-//  \::/_/:/  /   \:\  \        \::/__/       ~~\:\/\__\  \:\  /:/  /
-//   \:\/:/  /     \:\  \        \:\  \          \::/  /   \:\/:/  /
-//    \::/  /       \:\__\        \:\__\         /:/  /     \::/  /
-//     \/__/         \/__/         \/__/         \/__/       \/__/
-////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////
-
-
