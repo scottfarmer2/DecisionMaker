@@ -44,28 +44,6 @@ app.use(express.static("public"));
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 
-// Mount all resource routes
-// app.use("/api/users", usersRoutes(knex));
-// app.use("/api/poll", usersRoutes(knex));
-// app.use("/api/choices", usersRoutes(knex));
-// app.use("/api/voters", usersRoutes(knex));
-// app.use("/api/voterChoices", usersRoutes(knex));
-
-//////////////////////////////////////////
-//////////////////////////////////////////
-//this function generates a rondom string for our url
-
-
-
-//////////////////////////////////////////
-//////////////////////////////////////////
-
-
-///adding two variables like pollID
-
-// let voterID;
-
-// let choiceID;
 
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +98,7 @@ function insertPoll(title, description, admin_email, callback) {
 
 function insertEmails(voter, pollID) {
    for (let email of voter) {
-// console.log('helloooooooooo')
+
 
 const insert3 = {voter_email: email, poll_id: pollID};
 console.log(insert3);
@@ -141,7 +119,7 @@ function insertChoices(choices, pollID) {
   for (let choice of choices) {
 
   const insert2 = {choice_name: choice, poll_id: pollID};
-  console.log(insert2);
+
     knex.insert(insert2).into("choices").then(function (id) {
    })
    // .catch(error)
@@ -164,14 +142,8 @@ function insertResult(preference, cb) {
 
   knex.returning('id').insert(insert4).into("voterChoices").then(function (id) {
     cb(choice_id[0]);
-    console.log(choice_id);
+
    })
-    // knex.insert(insert4).into("voterChoices").then(function (id) {
-    // console.log('CAAAAANN YOUUUUUU HEEAAAAAR ME2', id)
-    // })
-
-
-//    })
    // .catch(error)
    // {
    // //     console.log(error);
@@ -187,7 +159,17 @@ function insertResult(preference, cb) {
 //////////////////////////////////////////
 
 // Home page
+
 app.get("/", (req, res) => {
+  res.render("homepage");
+})
+
+app.post("/", (req, res) => {
+  res.redirect("/poll")
+})
+
+
+app.get("/poll", (req, res) => {
   res.render("index");
 });
 
